@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_image_gallery/widgets/folder.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -8,64 +9,25 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  //View type
-  double _zoom = 200.0;
-
-  _zoomOut() {
-    setState(() {
-      if (_zoom <= 200) {
-        _zoom -= 50.0;
-        if (_zoom <= 100) {
-          _zoom = 100.0;
-        }
-      } else {
-        _zoom -= 200.0;
-      }
-    });
-  }
-
-  _zoomIn() {
-    setState(() {
-      if (_zoom >= 400) {
-        _zoom = 400.0;
-      } else {
-        if (_zoom == 200.0) {
-          _zoom += 200.0;
-        } else {
-          _zoom += 100.0;
-        }
-      }
-    });
-  }
-
   List<Widget> imageFiles = [
-    Container(height: 200, width: 200, color: Colors.amber),
+    const FolderWidget(
+      folderName: 'Camera',
+    ),
+    const FolderWidget(
+      folderName: 'Facebook',
+    ),
+    const FolderWidget(
+      folderName: 'DCIM',
+    ),
+    const FolderWidget(
+      folderName: 'Messenger',
+    ),
   ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Gallery'),
-        actions: [
-          IconButton(
-              onPressed: () {
-                _zoomIn();
-                print(_zoom);
-              },
-              icon: Icon(
-                Icons.zoom_in,
-                color: _zoom != 400.0 ? Colors.white : Colors.grey,
-              )),
-          IconButton(
-              onPressed: () {
-                _zoomOut();
-                print(_zoom);
-              },
-              icon: Icon(
-                Icons.zoom_out,
-                color: _zoom != 100.0 ? Colors.white : Colors.grey,
-              )),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(3.0),
@@ -74,12 +36,12 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverGrid(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
-                    return imageFiles[0];
+                    return imageFiles[index];
                   },
-                  childCount: 200,
+                  childCount: imageFiles.length,
                 ),
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: _zoom,
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200.0,
                     mainAxisSpacing: 2.0,
                     crossAxisSpacing: 2.0))
           ],
