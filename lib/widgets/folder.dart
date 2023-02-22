@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_image_gallery/screens/images.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class FolderWidget extends StatefulWidget {
   final String folderName;
