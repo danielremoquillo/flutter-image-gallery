@@ -13,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<String> directories = [];
+
   @override
   void initState() {
     _requestPermission();
@@ -28,11 +29,13 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<List<FileSystemEntity>> _getImageFiles() async {
+  Future<Map<String, List<String>>> _getImageFiles() async {
     Directory internal = Directory(directories[0]);
 
-    List<FileSystemEntity> files = [];
+//Get the folder names
+    Map<String, List<String>> folders = <String, List<String>>{};
 
+    List<FileSystemEntity> files = [];
     files =
         internal.listSync(recursive: true, followLinks: false).where((file) {
       return file.path.endsWith('.jpg') ||
@@ -41,21 +44,25 @@ class _HomeScreenState extends State<HomeScreen> {
           file.path.endsWith('.gif');
     }).toList();
 
-    return files;
+    for (var file in files) {
+      String folderName = file.path.split('/')[4];
+      folders.putIfAbsent(folderName, () => []);
+      folders[folderName]?.add(file.path);
+    }
+
+    return folders;
   }
 
   //Request for Storage Permission
   Future<bool> _requestPermission() async {
-    var status = await Permission.storage.status;
+    var statusStorage = await Permission.storage.status;
 
-    if (status != PermissionStatus.granted) {
+    if (statusStorage != PermissionStatus.granted) {
       Map<Permission, PermissionStatus> result = await [
         Permission.storage,
-        Permission.manageExternalStorage
       ].request();
-      if (result[Permission.storage] == PermissionStatus.granted &&
-          result[Permission.manageExternalStorage] ==
-              PermissionStatus.granted) {
+
+      if (result[Permission.storage] == PermissionStatus.granted) {
         return true;
       }
     } else {
@@ -68,47 +75,60 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gallery'),
+        title: Text('Gallery'),
       ),
-      body: FutureBuilder<List<FileSystemEntity>>(
-        future: _getImageFiles(),
-        builder: (context, snapshot) {
-          if (snapshot.data == null) {
-            return const CircularProgressIndicator();
-          }
-
-          if (snapshot.data!.isEmpty) {}
-
-          return Padding(
-            padding: const EdgeInsets.all(3.0),
-            child: CustomScrollView(
-              slivers: [
-                SliverGrid(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        return SizedBox(
-                            height: 200,
-                            width: 200,
-                            child: Image.file(
-                              File(snapshot.data![index].path),
-                              errorBuilder: (context, error, stackTrace) {
-                                return Image.asset('assets/placeholder.png');
-                              },
-                              fit: BoxFit.cover,
-                            ));
-                      },
-                      childCount: snapshot.data!.length,
-                    ),
-                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent:
-                            MediaQuery.of(context).size.width * 0.6,
-                        mainAxisSpacing: 2.0,
-                        crossAxisSpacing: 2.0))
-              ],
-            ),
-          );
-        },
-      ),
+      body: FutureBuilder<Map<String, List<String>>>(
+          future: _getImageFiles(),
+          builder: (context, snapshot) {
+            if (snapshot.data == null) {
+              return const CircularProgressIndicator();
+            }
+            print(snapshot.data![snapshot.data!.keys.elementAt(0)]);
+            return Padding(
+              padding: const EdgeInsets.all(3.0),
+              child: CustomScrollView(
+                slivers: [
+                  SliverGrid(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          return GridTile(
+                            footer: GridTileBar(
+                              backgroundColor: Color.fromARGB(120, 0, 0, 0),
+                              title: Text(
+                                snapshot.data!.keys.elementAt(index),
+                                style: TextStyle(color: Colors.white),
+                                maxLines: 1,
+                              ),
+                              subtitle: Text(
+                                '${snapshot.data!.keys.elementAt(index).length} images',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            child: SizedBox(
+                                height: 200,
+                                width: 200,
+                                child: Image.file(
+                                  File(snapshot.data![snapshot.data!.keys
+                                      .elementAt(index)]![0]),
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                        'assets/placeholder.png');
+                                  },
+                                  fit: BoxFit.cover,
+                                )),
+                          );
+                        },
+                        childCount: snapshot.data!.length,
+                      ),
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent:
+                              MediaQuery.of(context).size.width * 0.6,
+                          mainAxisSpacing: 2.0,
+                          crossAxisSpacing: 2.0))
+                ],
+              ),
+            );
+          }),
     );
   }
 }

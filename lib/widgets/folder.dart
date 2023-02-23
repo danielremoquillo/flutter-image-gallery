@@ -1,10 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_image_gallery/screens/images.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class FolderWidget extends StatefulWidget {
   final String folderName;
-  const FolderWidget({super.key, required this.folderName});
+  final List<String>? folderFiles;
+
+  const FolderWidget(
+      {super.key, required this.folderName, required this.folderFiles});
 
   @override
   State<FolderWidget> createState() => _FolderWidgetState();
@@ -13,22 +16,31 @@ class FolderWidget extends StatefulWidget {
 class _FolderWidgetState extends State<FolderWidget> {
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-        onTap: () {
-          Navigator.of(context).push(MaterialPageRoute<void>(
-              builder: (BuildContext context) =>
-                  Images(folderName: widget.folderName)));
-        },
-        child: GridTile(
-          footer: Container(
-            padding: const EdgeInsets.all(12.0),
-            color: const Color.fromARGB(137, 0, 0, 0),
-            child: Text(
-              widget.folderName,
-              style: const TextStyle(color: Colors.white),
+    return SliverToBoxAdapter(
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.2,
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          children: [
+            Text(widget.folderName),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: ListView.builder(
+                  itemCount: widget.folderFiles?.length,
+                  itemBuilder: (BuildContext context, index) {
+                    return Container(
+                      height: 200,
+                      width: 200,
+                      child: Image.file(
+                        File(widget.folderFiles![index]),
+                        fit: BoxFit.cover,
+                      ),
+                    );
+                  }),
             ),
-          ),
-          child: Container(height: 200, width: 200, color: Colors.amber),
-        ));
+          ],
+        ),
+      ),
+    );
   }
 }
