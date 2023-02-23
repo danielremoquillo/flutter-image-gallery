@@ -2,6 +2,9 @@ import 'dart:io';
 
 import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_gallery/widgets/folder_cover.dart';
+import 'package:flutter_image_gallery/widgets/images.dart';
+import 'package:flutter_image_gallery/screens/folder.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -75,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Gallery'),
+        title: const Text('Gallery'),
       ),
       body: FutureBuilder<Map<String, List<String>>>(
           future: _getImageFiles(),
@@ -83,7 +86,6 @@ class _HomeScreenState extends State<HomeScreen> {
             if (snapshot.data == null) {
               return const CircularProgressIndicator();
             }
-            print(snapshot.data![snapshot.data!.keys.elementAt(0)]);
             return Padding(
               padding: const EdgeInsets.all(3.0),
               child: CustomScrollView(
@@ -91,31 +93,37 @@ class _HomeScreenState extends State<HomeScreen> {
                   SliverGrid(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
-                          return GridTile(
-                            footer: GridTileBar(
-                              backgroundColor: Color.fromARGB(120, 0, 0, 0),
-                              title: Text(
-                                snapshot.data!.keys.elementAt(index),
-                                style: TextStyle(color: Colors.white),
-                                maxLines: 1,
+                          var folderName = snapshot.data!.keys.elementAt(index);
+
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Folder(
+                                          folderName: folderName,
+                                          folderFiles:
+                                              snapshot.data![folderName])));
+                            },
+                            child: GridTile(
+                              footer: GridTileBar(
+                                backgroundColor:
+                                    const Color.fromARGB(120, 0, 0, 0),
+                                title: Text(
+                                  folderName,
+                                  style: const TextStyle(color: Colors.white),
+                                  maxLines: 1,
+                                ),
+                                subtitle: Text(
+                                  '${snapshot.data![folderName]?.length} images',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
                               ),
-                              subtitle: Text(
-                                '${snapshot.data!.keys.elementAt(index).length} images',
-                                style: TextStyle(color: Colors.white),
+                              child: FolderCover(
+                                path: snapshot.data![
+                                    snapshot.data!.keys.elementAt(index)]![0],
                               ),
                             ),
-                            child: SizedBox(
-                                height: 200,
-                                width: 200,
-                                child: Image.file(
-                                  File(snapshot.data![snapshot.data!.keys
-                                      .elementAt(index)]![0]),
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Image.asset(
-                                        'assets/placeholder.png');
-                                  },
-                                  fit: BoxFit.cover,
-                                )),
                           );
                         },
                         childCount: snapshot.data!.length,
