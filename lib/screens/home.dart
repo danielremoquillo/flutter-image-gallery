@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_gallery/components/gallery_theme.dart';
 import 'package:flutter_image_gallery/widgets/folder_cover.dart';
-import 'package:flutter_image_gallery/widgets/images.dart';
+
 import 'package:flutter_image_gallery/screens/folder.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -21,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     _requestPermission();
     _getStorages();
+
     super.initState();
   }
 
@@ -77,66 +79,107 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Gallery'),
-      ),
-      body: FutureBuilder<Map<String, List<String>>>(
-          future: _getImageFiles(),
-          builder: (context, snapshot) {
-            if (snapshot.data == null) {
-              return const CircularProgressIndicator();
-            }
-            return Padding(
-              padding: const EdgeInsets.all(3.0),
-              child: CustomScrollView(
-                slivers: [
-                  SliverGrid(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          var folderName = snapshot.data!.keys.elementAt(index);
-
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Folder(
-                                          folderName: folderName,
-                                          folderFiles:
-                                              snapshot.data![folderName])));
-                            },
-                            child: GridTile(
-                              footer: GridTileBar(
-                                backgroundColor:
-                                    const Color.fromARGB(120, 0, 0, 0),
-                                title: Text(
-                                  folderName,
-                                  style: const TextStyle(color: Colors.white),
-                                  maxLines: 1,
-                                ),
-                                subtitle: Text(
-                                  '${snapshot.data![folderName]?.length} images',
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ),
-                              child: FolderCover(
-                                path: snapshot.data![
-                                    snapshot.data!.keys.elementAt(index)]![0],
-                              ),
+      backgroundColor: GalleryTheme.primary,
+      body: SafeArea(
+        child: FutureBuilder<Map<String, List<String>>>(
+            future: _getImageFiles(),
+            builder: (context, snapshot) {
+              if (snapshot.data == null) {
+                return const CircularProgressIndicator();
+              }
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                decoration: const BoxDecoration(
+                  gradient: GalleryTheme.backgroundColor,
+                ),
+                child: CustomScrollView(
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 18.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: const [
+                                  Text(
+                                    'Gallery',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 25),
+                                  ),
+                                  IconButton(
+                                    onPressed: null,
+                                    icon: Icon(
+                                      Icons.search,
+                                      color: Colors.white,
+                                    ),
+                                    iconSize: 30,
+                                  ),
+                                ]),
+                            SizedBox(
+                              height: 40,
                             ),
-                          );
-                        },
-                        childCount: snapshot.data!.length,
+                            Text(
+                              'Internal Storage',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 20),
+                            ),
+                          ],
+                        ),
                       ),
-                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent:
-                              MediaQuery.of(context).size.width * 0.6,
-                          mainAxisSpacing: 2.0,
-                          crossAxisSpacing: 2.0))
-                ],
-              ),
-            );
-          }),
+                    ),
+                    SliverGrid(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            var folderName =
+                                snapshot.data!.keys.elementAt(index);
+
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Folder(
+                                            folderName: folderName,
+                                            folderFiles:
+                                                snapshot.data![folderName])));
+                              },
+                              child: GridTile(
+                                footer: GridTileBar(
+                                  backgroundColor:
+                                      const Color.fromARGB(120, 0, 0, 0),
+                                  title: Text(
+                                    folderName,
+                                    style: const TextStyle(color: Colors.white),
+                                    maxLines: 1,
+                                  ),
+                                  subtitle: Text(
+                                    '${snapshot.data![folderName]?.length} images',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                child: FolderCover(
+                                  path: snapshot.data![
+                                      snapshot.data!.keys.elementAt(index)]![0],
+                                ),
+                              ),
+                            );
+                          },
+                          childCount: snapshot.data!.length,
+                        ),
+                        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent:
+                                MediaQuery.of(context).size.width * 0.6,
+                            mainAxisSpacing: 10.0,
+                            crossAxisSpacing: 10.0))
+                  ],
+                ),
+              );
+            }),
+      ),
     );
   }
 }

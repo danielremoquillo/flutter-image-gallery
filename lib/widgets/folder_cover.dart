@@ -12,15 +12,11 @@ class FolderCover extends StatefulWidget {
 class _FolderCoverState extends State<FolderCover> {
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200,
-      width: 200,
-      child: Image.file(
-        File(widget.path),
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) =>
-            Image.asset('assets/placeholder.png'),
-      ),
+    return Image.file(
+      File(widget.path),
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) =>
+          Image.asset('assets/placeholder.png'),
     );
   }
 }
