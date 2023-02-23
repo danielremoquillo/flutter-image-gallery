@@ -47,7 +47,8 @@ class _FolderState extends State<Folder> {
                     Text(
                       widget.folderFiles![0]
                           .split('/')
-                          .getRange(0, 5)
+                          .getRange(
+                              0, widget.folderFiles![0].split('/').length - 1)
                           .join('/')
                           .toString(),
                       style: const TextStyle(color: Colors.white, fontSize: 18),

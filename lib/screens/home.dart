@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:external_path/external_path.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_image_gallery/widgets/folder_cover.dart';
 
 import 'package:flutter_image_gallery/screens/folder.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_storage_path/flutter_storage_path.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,11 +20,13 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<String> directories = [];
 
+  List<dynamic> imageDirectories = [];
+
   @override
   void initState() {
     _requestPermission();
     _getStorages();
-
+    _getImages();
     super.initState();
   }
 
@@ -34,25 +38,26 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<Map<String, List<String>>> _getImageFiles() async {
-    Directory internal = Directory(directories[0]);
+  void _getImages() async {
+    var imagePath = await StoragePath
+        .imagesPath; //contains images path and folder name in json format
+    var images = jsonDecode(imagePath!) as List;
+    var files = images.map((e) => e['files']).toList();
+    imageDirectories = files.expand((element) => element).toList();
+  }
 
-//Get the folder names
+  Future<Map<String, List<String>>> _getImageFiles() async {
     Map<String, List<String>> folders = <String, List<String>>{};
 
-    List<FileSystemEntity> files = [];
-    files =
-        internal.listSync(recursive: true, followLinks: false).where((file) {
-      return file.path.endsWith('.jpg') ||
-          file.path.endsWith('.jpeg') ||
-          file.path.endsWith('.png') ||
-          file.path.endsWith('.gif');
-    }).toList();
+    for (var path in imageDirectories) {
+      String folderName;
+      int removeLast = path.split('/').length;
 
-    for (var file in files) {
-      String folderName = file.path.split('/')[4];
+      folderName = path.split('/').getRange(0, removeLast - 1).last;
+      print(folderName);
       folders.putIfAbsent(folderName, () => []);
-      folders[folderName]?.add(file.path);
+
+      folders[folderName]?.add(path);
     }
 
     return folders;
@@ -119,15 +124,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                     iconSize: 30,
                                   ),
                                 ]),
-                            SizedBox(
+                            const SizedBox(
                               height: 40,
                             ),
-                            Text(
-                              'Internal Storage',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 20),
-                            ),
                           ],
+                        ),
+                      ),
+                    ),
+                    const SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: 80,
+                        width: 300,
+                        child: Text(
+                          'Internal Storage',
+                          style: TextStyle(color: Colors.white, fontSize: 20),
                         ),
                       ),
                     ),

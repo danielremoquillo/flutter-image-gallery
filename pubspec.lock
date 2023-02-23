@@ -78,6 +78,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+  flutter_storage_path:
+    dependency: "direct main"
+    description:
+      name: flutter_storage_path
+      sha256: fd3b5aa9107e0a74218473bafcaa9fbaf07a7f9e3647d6130cabde5fdef96a56
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   flutter_test:
     dependency: "direct dev"
     description: flutter
