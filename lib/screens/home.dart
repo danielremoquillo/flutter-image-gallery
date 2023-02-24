@@ -1,13 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
-
-import 'package:external_path/external_path.dart';
+import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_gallery/components/gallery_theme.dart';
 import 'package:flutter_image_gallery/widgets/folder_cover.dart';
-
 import 'package:flutter_image_gallery/screens/folder.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_storage_path/flutter_storage_path.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,43 +14,23 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<String> directories = [];
-
   List<dynamic> imageDirectories = [];
 
   @override
   void initState() {
-    _requestPermission();
-    _getStorages();
-    _getImages();
+    _requestPermissionGetImageFiles();
     super.initState();
   }
 
-  Future<void> _getStorages() async {
-    var path = await ExternalPath.getExternalStorageDirectories();
-    // please note: B3AE-4D28 is external storage (SD card) folder name it can be any.
-    setState(() {
-      directories = path;
-    });
-  }
-
-  void _getImages() async {
-    var imagePath = await StoragePath
-        .imagesPath; //contains images path and folder name in json format
-    var images = jsonDecode(imagePath!) as List;
-    var files = images.map((e) => e['files']).toList();
-    imageDirectories = files.expand((element) => element).toList();
-  }
-
-  Future<Map<String, List<String>>> _getImageFiles() async {
-    Map<String, List<String>> folders = <String, List<String>>{};
+  Future<Map<String, List<String>>> _pathImageFiles() async {
+    SplayTreeMap<String, List<String>> folders =
+        SplayTreeMap<String, List<String>>();
 
     for (var path in imageDirectories) {
       String folderName;
       int removeLast = path.split('/').length;
 
       folderName = path.split('/').getRange(0, removeLast - 1).last;
-      print(folderName);
       folders.putIfAbsent(folderName, () => []);
 
       folders[folderName]?.add(path);
@@ -64,21 +40,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   //Request for Storage Permission
-  Future<bool> _requestPermission() async {
-    var statusStorage = await Permission.storage.status;
+  Future<void> _requestPermissionGetImageFiles() async {
+    //contains images path and folder name in json format
+    var imagePath = await StoragePath.imagesPath;
+    var images = jsonDecode(imagePath!) as List;
+    var files = images.map((e) => e['files']).toList();
+    imageDirectories = files.expand((element) => element).toList();
 
-    if (statusStorage != PermissionStatus.granted) {
-      Map<Permission, PermissionStatus> result = await [
-        Permission.storage,
-      ].request();
-
-      if (result[Permission.storage] == PermissionStatus.granted) {
-        return true;
-      }
-    } else {
-      return true;
-    }
-    return false;
+    setState(() {}); // refresh after request
   }
 
   @override
@@ -87,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: GalleryTheme.primary,
       body: SafeArea(
         child: FutureBuilder<Map<String, List<String>>>(
-            future: _getImageFiles(),
+            future: _pathImageFiles(),
             builder: (context, snapshot) {
               if (snapshot.data == null) {
                 return const CircularProgressIndicator();
@@ -127,17 +96,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(
                               height: 40,
                             ),
+                            const Text(
+                              'Folders',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 22),
+                            ),
                           ],
-                        ),
-                      ),
-                    ),
-                    const SliverToBoxAdapter(
-                      child: SizedBox(
-                        height: 80,
-                        width: 300,
-                        child: Text(
-                          'Internal Storage',
-                          style: TextStyle(color: Colors.white, fontSize: 20),
                         ),
                       ),
                     ),
@@ -152,29 +116,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => Folder(
+                                        builder: (context) => FolderScreen(
                                             folderName: folderName,
                                             folderFiles:
                                                 snapshot.data![folderName])));
                               },
-                              child: GridTile(
-                                footer: GridTileBar(
-                                  backgroundColor:
-                                      const Color.fromARGB(120, 0, 0, 0),
-                                  title: Text(
-                                    folderName,
-                                    style: const TextStyle(color: Colors.white),
-                                    maxLines: 1,
-                                  ),
-                                  subtitle: Text(
-                                    '${snapshot.data![folderName]?.length} images',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                                child: FolderCover(
-                                  path: snapshot.data![
-                                      snapshot.data!.keys.elementAt(index)]![0],
-                                ),
+                              child: FolderCover(
+                                imagePath: snapshot.data![folderName]![0],
+                                folderName: folderName,
+                                imageCount: snapshot.data![folderName]?.length,
                               ),
                             );
                           },

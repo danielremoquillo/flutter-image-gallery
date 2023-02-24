@@ -2,17 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_gallery/components/gallery_theme.dart';
 import 'package:flutter_image_gallery/widgets/image_file.dart';
 
-class Folder extends StatefulWidget {
+class FolderScreen extends StatelessWidget {
   final String folderName;
   final List<String>? folderFiles;
-  const Folder(
+  const FolderScreen(
       {super.key, required this.folderName, required this.folderFiles});
 
-  @override
-  State<Folder> createState() => _FolderState();
-}
-
-class _FolderState extends State<Folder> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,17 +33,16 @@ class _FolderState extends State<Folder> {
                 child: Column(
                   children: [
                     Text(
-                      '${widget.folderName} (${widget.folderFiles?.length})',
+                      '$folderName (${folderFiles?.length})',
                       style: const TextStyle(color: Colors.white, fontSize: 25),
                     ),
                     const SizedBox(
                       height: 10.0,
                     ),
                     Text(
-                      widget.folderFiles![0]
+                      folderFiles![0]
                           .split('/')
-                          .getRange(
-                              0, widget.folderFiles![0].split('/').length - 1)
+                          .getRange(0, folderFiles![0].split('/').length - 1)
                           .join('/')
                           .toString(),
                       style: const TextStyle(color: Colors.white, fontSize: 18),
@@ -61,11 +55,11 @@ class _FolderState extends State<Folder> {
           SliverGrid(
               delegate: SliverChildBuilderDelegate((context, index) {
                 return ImageFiles(
-                  path: widget.folderFiles![index],
+                  path: folderFiles![index],
                   index: index + 1,
                   backgroundColor: GalleryTheme.secondary,
                 );
-              }, childCount: widget.folderFiles!.length),
+              }, childCount: folderFiles!.length),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 150,
                   mainAxisSpacing: 2.0,

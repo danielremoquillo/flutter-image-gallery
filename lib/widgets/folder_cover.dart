@@ -1,22 +1,38 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 
-class FolderCover extends StatefulWidget {
-  final String path;
-  const FolderCover({super.key, required this.path});
+class FolderCover extends StatelessWidget {
+  final String imagePath;
+  final int? imageCount;
 
-  @override
-  State<FolderCover> createState() => _FolderCoverState();
-}
+  final String folderName;
+  const FolderCover(
+      {super.key,
+      required this.imagePath,
+      required this.imageCount,
+      required this.folderName});
 
-class _FolderCoverState extends State<FolderCover> {
   @override
   Widget build(BuildContext context) {
-    return Image.file(
-      File(widget.path),
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) =>
-          Image.asset('assets/placeholder.png'),
+    return GridTile(
+      footer: GridTileBar(
+        backgroundColor: const Color.fromARGB(120, 0, 0, 0),
+        title: Text(
+          folderName,
+          style: const TextStyle(color: Colors.white),
+          maxLines: 1,
+        ),
+        subtitle: Text(
+          '$imageCount images',
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+      child: Image.file(
+        File(imagePath),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) =>
+            Image.asset('assets/placeholder.png'),
+      ),
     );
   }
 }
