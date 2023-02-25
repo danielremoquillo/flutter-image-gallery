@@ -16,6 +16,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<dynamic> imageDirectories = [];
 
+  bool isClickOrder = false;
+
   @override
   void initState() {
     _requestPermissionGetImageFiles();
@@ -62,79 +64,126 @@ class _HomeScreenState extends State<HomeScreen> {
                 return const CircularProgressIndicator();
               }
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 decoration: const BoxDecoration(
                   gradient: GalleryTheme.backgroundColor,
                 ),
                 child: CustomScrollView(
                   slivers: [
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 18.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text(
-                                    'Gallery',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 25),
-                                  ),
-                                  IconButton(
-                                    onPressed: null,
-                                    icon: Icon(
-                                      Icons.search,
-                                      color: Colors.white,
+                    SliverAppBar(
+                      pinned: true,
+                      collapsedHeight: 100,
+                      title: const Text('All Album'),
+                      actions: [
+                        IconButton(
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    backgroundColor: GalleryTheme.primary,
+                                    title: const Text(
+                                      'Project Details',
+                                      style: TextStyle(
+                                          color: GalleryTheme.secondary),
                                     ),
-                                    iconSize: 30,
-                                  ),
-                                ]),
-                            const SizedBox(
-                              height: 40,
-                            ),
-                            const Text(
-                              'Folders',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 22),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SliverGrid(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            var folderName =
-                                snapshot.data!.keys.elementAt(index);
-
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => FolderScreen(
-                                            folderName: folderName,
-                                            folderFiles:
-                                                snapshot.data![folderName])));
-                              },
-                              child: FolderCover(
-                                imagePath: snapshot.data![folderName]![0],
-                                folderName: folderName,
-                                imageCount: snapshot.data![folderName]?.length,
-                              ),
-                            );
+                                    content: const Text.rich(
+                                      TextSpan(
+                                        children: [
+                                          TextSpan(
+                                              text: 'Project Name: ',
+                                              style: TextStyle(
+                                                  color: GalleryTheme.secondary,
+                                                  fontWeight: FontWeight.bold),
+                                              children: [
+                                                TextSpan(
+                                                  text: 'Flutter Gallery\n',
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: GalleryTheme
+                                                          .secondary),
+                                                )
+                                              ]),
+                                          TextSpan(
+                                              text: 'Created by: ',
+                                              style: TextStyle(
+                                                  color: GalleryTheme.secondary,
+                                                  fontWeight: FontWeight.bold),
+                                              children: [
+                                                TextSpan(
+                                                  text: 'Daniel Remoquillo',
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: GalleryTheme
+                                                          .secondary),
+                                                )
+                                              ]),
+                                        ],
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        child: const Text('CLOSE'),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                });
                           },
-                          childCount: snapshot.data!.length,
+                          icon: const Icon(
+                            Icons.info_outline,
+                            color: Colors.white,
+                          ),
                         ),
-                        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent:
-                                MediaQuery.of(context).size.width * 0.6,
-                            mainAxisSpacing: 10.0,
-                            crossAxisSpacing: 10.0))
+                      ],
+                      backgroundColor: GalleryTheme.primary,
+                    ),
+                    snapshot.data!.isNotEmpty
+                        ? SliverGrid(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                var folderName =
+                                    snapshot.data!.keys.elementAt(index);
+
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => FolderScreen(
+                                                storageName: snapshot
+                                                    .data![folderName]![0]
+                                                    .split('/')
+                                                    .elementAt(2),
+                                                folderName: folderName,
+                                                folderFiles: snapshot
+                                                    .data![folderName])));
+                                  },
+                                  child: FolderCover(
+                                    imagePath: snapshot.data![folderName]![0],
+                                    folderName: folderName,
+                                    imageCount:
+                                        snapshot.data![folderName]?.length,
+                                  ),
+                                );
+                              },
+                              childCount: snapshot.data!.length,
+                            ),
+                            gridDelegate:
+                                SliverGridDelegateWithMaxCrossAxisExtent(
+                                    maxCrossAxisExtent:
+                                        MediaQuery.of(context).size.width * 0.6,
+                                    mainAxisSpacing: 10.0,
+                                    crossAxisSpacing: 10.0))
+                        : const SliverToBoxAdapter(
+                            child: Center(
+                              child: Text(
+                                'No Images found.',
+                                style: TextStyle(color: GalleryTheme.secondary),
+                              ),
+                            ),
+                          ),
                   ],
                 ),
               );

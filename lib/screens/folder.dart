@@ -4,12 +4,20 @@ import 'package:flutter_image_gallery/widgets/image_file.dart';
 
 class FolderScreen extends StatelessWidget {
   final String folderName;
+  final String storageName;
+  String? folderPath;
+
   final List<String>? folderFiles;
-  const FolderScreen(
-      {super.key, required this.folderName, required this.folderFiles});
+  FolderScreen(
+      {super.key,
+      required this.folderName,
+      required this.folderFiles,
+      required this.storageName});
 
   @override
   Widget build(BuildContext context) {
+    folderPath =
+        '${folderFiles![0].split('/').getRange(0, folderFiles![0].split('/').length - 2).join('/')}/';
     return Scaffold(
       backgroundColor: GalleryTheme.tertiary,
       body: CustomScrollView(
@@ -17,47 +25,53 @@ class FolderScreen extends StatelessWidget {
           SliverAppBar(
             pinned: true,
             elevation: 4,
-            actions: const [
+            title: Text(
+              '$folderName (${folderFiles?.length})',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white, fontSize: 18),
+            ),
+            actions: [
               IconButton(
-                  onPressed: null,
-                  icon: Icon(
-                    Icons.more_vert_outlined,
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            backgroundColor: GalleryTheme.primary,
+                            title: const Text(
+                              'Folder Info',
+                              style: TextStyle(color: GalleryTheme.secondary),
+                            ),
+                            content: Text(
+                              'Path: $folderPath',
+                              style: const TextStyle(
+                                  fontSize: 14, color: GalleryTheme.secondary),
+                            ),
+                            actions: [
+                              TextButton(
+                                child: const Text('CLOSE'),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          );
+                        });
+                  },
+                  icon: const Icon(
+                    Icons.info_outline,
                     color: Colors.white,
                   ))
             ],
             backgroundColor: GalleryTheme.primary,
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(150.0),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 40.0),
-                child: Column(
-                  children: [
-                    Text(
-                      '$folderName (${folderFiles?.length})',
-                      style: const TextStyle(color: Colors.white, fontSize: 25),
-                    ),
-                    const SizedBox(
-                      height: 10.0,
-                    ),
-                    Text(
-                      folderFiles![0]
-                          .split('/')
-                          .getRange(0, folderFiles![0].split('/').length - 1)
-                          .join('/')
-                          .toString(),
-                      style: const TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ),
           SliverGrid(
               delegate: SliverChildBuilderDelegate((context, index) {
                 return ImageFiles(
                   path: folderFiles![index],
-                  index: index + 1,
+                  index: index,
                   backgroundColor: GalleryTheme.secondary,
+                  folderFiles: folderFiles,
                 );
               }, childCount: folderFiles!.length),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(

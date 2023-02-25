@@ -29,6 +29,7 @@ class FolderCover extends StatelessWidget {
       ),
       child: Image.file(
         File(imagePath),
+        cacheHeight: 200,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) =>
             Image.asset('assets/placeholder.png'),
