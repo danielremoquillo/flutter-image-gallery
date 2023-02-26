@@ -42,10 +42,30 @@ class FolderScreen extends StatelessWidget {
                               'Folder Info',
                               style: TextStyle(color: GalleryTheme.secondary),
                             ),
-                            content: Text(
-                              'Path: $folderPath',
-                              style: const TextStyle(
-                                  fontSize: 14, color: GalleryTheme.secondary),
+                            content: Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: 'Folder name: $folderName \n',
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        color: GalleryTheme.secondary),
+                                  ),
+                                  TextSpan(
+                                    text:
+                                        'Image count: ${folderFiles?.length} \n',
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        color: GalleryTheme.secondary),
+                                  ),
+                                  TextSpan(
+                                    text: 'Path: $folderPath',
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        color: GalleryTheme.secondary),
+                                  ),
+                                ],
+                              ),
                             ),
                             actions: [
                               TextButton(

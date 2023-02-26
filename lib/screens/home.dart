@@ -92,13 +92,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                           TextSpan(
                                               text: 'Project Name: ',
                                               style: TextStyle(
-                                                  color: GalleryTheme.secondary,
-                                                  fontWeight: FontWeight.bold),
+                                                color: GalleryTheme.secondary,
+                                              ),
                                               children: [
                                                 TextSpan(
                                                   text: 'Flutter Gallery\n',
                                                   style: TextStyle(
-                                                      fontSize: 14,
                                                       color: GalleryTheme
                                                           .secondary),
                                                 )
@@ -106,13 +105,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                           TextSpan(
                                               text: 'Created by: ',
                                               style: TextStyle(
-                                                  color: GalleryTheme.secondary,
-                                                  fontWeight: FontWeight.bold),
+                                                color: GalleryTheme.secondary,
+                                              ),
                                               children: [
                                                 TextSpan(
                                                   text: 'Daniel Remoquillo',
                                                   style: TextStyle(
-                                                      fontSize: 14,
                                                       color: GalleryTheme
                                                           .secondary),
                                                 )

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../providers/file_image.dart';
 
@@ -21,9 +22,16 @@ class ImageFiles extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        showImageViewerPager(context,
-            FilesImageProvider(folderFiles: folderFiles, initialIndex: index),
-            useSafeArea: true, doubleTapZoomable: true);
+        showImageViewerPager(
+          context,
+          FilesImageProvider(folderFiles: folderFiles, initialIndex: index),
+          useSafeArea: true,
+          doubleTapZoomable: true,
+          onViewerDismissed: (_) {
+            SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+                overlays: SystemUiOverlay.values);
+          },
+        );
       },
       child: Hero(
         tag: 'selectedImage$index',

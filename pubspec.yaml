@@ -31,8 +31,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-  permission_handler: ^10.2.0
-  external_path: ^1.0.3
   flutter_storage_path: ^1.0.4
   easy_image_viewer: ^1.2.0
 
