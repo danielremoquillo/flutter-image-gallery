@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_image_gallery/components/gallery_theme.dart';
 import 'package:flutter_image_gallery/screens/home.dart';
 
 void main() {
@@ -15,8 +16,9 @@ class MyApp extends StatelessWidget {
       title: 'Gallery App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+          primarySwatch:
+              GalleryTheme.buildMaterialColor(const Color(0xFF393E46)),
+          fontFamily: 'DINRound'),
       home: const HomeScreen(),
     );
   }

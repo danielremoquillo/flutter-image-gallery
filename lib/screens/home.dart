@@ -55,135 +55,118 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: GalleryTheme.primary,
-      body: SafeArea(
+      appBar: AppBar(
+        title: const Text('All Album'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      backgroundColor: GalleryTheme.primary,
+                      title: const Text(
+                        'Project Details',
+                        style: TextStyle(color: GalleryTheme.secondary),
+                      ),
+                      content: const Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Project Name: Flutter Gallery\n',
+                              style: TextStyle(
+                                color: GalleryTheme.secondary,
+                                fontSize: 14,
+                              ),
+                            ),
+                            TextSpan(
+                              text: 'Created by: Daniel Remoquillo',
+                              style: TextStyle(
+                                color: GalleryTheme.secondary,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          child: const Text(
+                            'CLOSE',
+                            style: TextStyle(color: GalleryTheme.secondary),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    );
+                  });
+            },
+            icon: const Icon(
+              Icons.info_outline,
+            ),
+          ),
+        ],
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: GalleryTheme.backgroundColor,
+        ),
         child: FutureBuilder<Map<String, List<String>>>(
             future: _pathImageFiles(),
             builder: (context, snapshot) {
               if (snapshot.data == null) {
                 return const CircularProgressIndicator();
               }
-              return Container(
-                decoration: const BoxDecoration(
-                  gradient: GalleryTheme.backgroundColor,
-                ),
-                child: CustomScrollView(
-                  slivers: [
-                    SliverAppBar(
-                      pinned: true,
-                      collapsedHeight: 100,
-                      title: const Text('All Album'),
-                      actions: [
-                        IconButton(
-                          onPressed: () {
-                            showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    backgroundColor: GalleryTheme.primary,
-                                    title: const Text(
-                                      'Project Details',
-                                      style: TextStyle(
-                                          color: GalleryTheme.secondary),
-                                    ),
-                                    content: const Text.rich(
-                                      TextSpan(
-                                        children: [
-                                          TextSpan(
-                                              text: 'Project Name: ',
-                                              style: TextStyle(
-                                                color: GalleryTheme.secondary,
-                                              ),
-                                              children: [
-                                                TextSpan(
-                                                  text: 'Flutter Gallery\n',
-                                                  style: TextStyle(
-                                                      color: GalleryTheme
-                                                          .secondary),
-                                                )
-                                              ]),
-                                          TextSpan(
-                                              text: 'Created by: ',
-                                              style: TextStyle(
-                                                color: GalleryTheme.secondary,
-                                              ),
-                                              children: [
-                                                TextSpan(
-                                                  text: 'Daniel Remoquillo',
-                                                  style: TextStyle(
-                                                      color: GalleryTheme
-                                                          .secondary),
-                                                )
-                                              ]),
-                                        ],
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        child: const Text('CLOSE'),
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                });
-                          },
-                          icon: const Icon(
-                            Icons.info_outline,
-                            color: Colors.white,
+              return CustomScrollView(
+                slivers: [
+                  snapshot.data!.isNotEmpty
+                      ? SliverGrid(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              var folderName =
+                                  snapshot.data!.keys.elementAt(index);
+
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => FolderScreen(
+                                              storageName: snapshot
+                                                  .data![folderName]![0]
+                                                  .split('/')
+                                                  .elementAt(2),
+                                              folderName: folderName,
+                                              folderFiles:
+                                                  snapshot.data![folderName])));
+                                },
+                                child: FolderCover(
+                                  imagePath: snapshot.data![folderName]![0],
+                                  folderName: folderName,
+                                  imageCount:
+                                      snapshot.data![folderName]?.length,
+                                ),
+                              );
+                            },
+                            childCount: snapshot.data!.length,
+                          ),
+                          gridDelegate:
+                              SliverGridDelegateWithMaxCrossAxisExtent(
+                                  maxCrossAxisExtent:
+                                      MediaQuery.of(context).size.width * 0.6,
+                                  mainAxisSpacing: 2.0,
+                                  crossAxisSpacing: 2.0))
+                      : const SliverToBoxAdapter(
+                          child: Center(
+                            child: Text(
+                              'No Images found.',
+                              style: TextStyle(color: GalleryTheme.secondary),
+                            ),
                           ),
                         ),
-                      ],
-                      backgroundColor: GalleryTheme.primary,
-                    ),
-                    snapshot.data!.isNotEmpty
-                        ? SliverGrid(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                                var folderName =
-                                    snapshot.data!.keys.elementAt(index);
-
-                                return GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => FolderScreen(
-                                                storageName: snapshot
-                                                    .data![folderName]![0]
-                                                    .split('/')
-                                                    .elementAt(2),
-                                                folderName: folderName,
-                                                folderFiles: snapshot
-                                                    .data![folderName])));
-                                  },
-                                  child: FolderCover(
-                                    imagePath: snapshot.data![folderName]![0],
-                                    folderName: folderName,
-                                    imageCount:
-                                        snapshot.data![folderName]?.length,
-                                  ),
-                                );
-                              },
-                              childCount: snapshot.data!.length,
-                            ),
-                            gridDelegate:
-                                SliverGridDelegateWithMaxCrossAxisExtent(
-                                    maxCrossAxisExtent:
-                                        MediaQuery.of(context).size.width * 0.6,
-                                    mainAxisSpacing: 10.0,
-                                    crossAxisSpacing: 10.0))
-                        : const SliverToBoxAdapter(
-                            child: Center(
-                              child: Text(
-                                'No Images found.',
-                                style: TextStyle(color: GalleryTheme.secondary),
-                              ),
-                            ),
-                          ),
-                  ],
-                ),
+                ],
               );
             }),
       ),

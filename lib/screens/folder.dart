@@ -69,7 +69,11 @@ class FolderScreen extends StatelessWidget {
                             ),
                             actions: [
                               TextButton(
-                                child: const Text('CLOSE'),
+                                child: const Text(
+                                  'CLOSE',
+                                  style:
+                                      TextStyle(color: GalleryTheme.secondary),
+                                ),
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
@@ -83,7 +87,6 @@ class FolderScreen extends StatelessWidget {
                     color: Colors.white,
                   ))
             ],
-            backgroundColor: GalleryTheme.primary,
           ),
           SliverGrid(
               delegate: SliverChildBuilderDelegate((context, index) {
